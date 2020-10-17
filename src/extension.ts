@@ -10,7 +10,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   if (vscode.workspace.workspaceFolders) {
     const uri = vscode.workspace.workspaceFolders[0].uri.with({
-      path: `${vscode.workspace.workspaceFolders[0].uri.path}/.flashcode.json`,
+      path: `${vscode.workspace.workspaceFolders[0].uri.path}/.main.flash`,
     });
 
     let deck;

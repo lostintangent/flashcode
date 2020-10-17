@@ -52,7 +52,7 @@ export async function registerCommands(context: ExtensionContext) {
     commands.registerCommand(`${EXTENSION_NAME}.openDeckFile`, async () => {
       const uri = await window.showOpenDialog({
         filters: {
-          Tours: ["json"],
+          Tours: ["flash"],
         },
         canSelectFolders: false,
         canSelectMany: false,

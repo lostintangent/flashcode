@@ -41,10 +41,18 @@
       "commandPalette": [
         {
           "command": "flashcode.startDeck",
-          "when": "flashcde:hasDecks"
+          "when": "flashcode:hasDecks"
         }
       ]
-    }
+    },
+    "languages": [
+      {
+        "id": "json",
+        "extensions": [
+          ".flash"
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",

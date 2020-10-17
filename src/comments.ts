@@ -15,14 +15,13 @@ import {
 } from "vscode";
 import { EXTENSION_NAME } from "./extension";
 import { store } from "./store";
-export const CARD_SCHEME = "codecard";
 
 export function registerTextDocumentContentProvider() {}
 
 const ICON_URL =
-  "https://cdn.jsdelivr.net/gh/codespaces-contrib/flashcode/icon.png";
+  "https://user-images.githubusercontent.com/116461/96352964-b72b7600-107c-11eb-9e8a-a2afc72e936f.png";
 
-class CodeCardComment implements Comment {
+class FlashcodeCardComment implements Comment {
   body: MarkdownString;
   mode: CommentMode;
   author: CommentAuthorInformation;
@@ -53,7 +52,7 @@ function showCard(card: number) {
   }
 
   const deckTitle = store.activeDeck!.deck.title;
-  const cardUri = Uri.parse(`${CARD_SCHEME}:/${deckTitle}`);
+  const cardUri = Uri.parse(`${EXTENSION_NAME}:/${deckTitle}`);
   provider = comments.createCommentController(EXTENSION_NAME, "Flashcode");
 
   const cardContent = store.activeDeck!.deck.cards[card];
@@ -62,18 +61,25 @@ function showCard(card: number) {
   const isFinalCard =
     store.activeDeck!.seenCards.length ===
     store.activeDeck!.deck.cards.length - 1;
+
   const cardBody = new MarkdownString(
     store.activeDeck?.showAnswer
-      ? cardContent +
-        "\n\n" +
+      ? "❓ **Question:** " +
+        cardQuestion +
+        "\n" +
+        "💡 **Answer:** " +
+        cardAnswer +
+        "\n---\n" +
         (isFinalCard
-          ? "[Finish Deck](command:codecards.endDeck)"
-          : "[Next Card](command:codecards.nextCard)")
-      : cardQuestion + "\n\n[Show Answer](command:codecards.showAnswer)"
+          ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck)`
+          : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard)`)
+      : `❓ **Question:** ${cardQuestion}
+---
+⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer)`
   );
   cardBody.isTrusted = true;
 
-  const comment = new CodeCardComment(
+  const comment = new FlashcodeCardComment(
     deckTitle,
     card + 1,
     store.activeDeck!.deck.cards.length,
@@ -83,12 +89,15 @@ function showCard(card: number) {
     comment,
   ]);
 
+  // @ts-ignore
+  thread.canReply = false;
+
   thread.collapsibleState = CommentThreadCollapsibleState.Expanded;
   window.showTextDocument(cardUri);
 }
 
 export function registerPlayer() {
-  workspace.registerTextDocumentContentProvider(CARD_SCHEME, {
+  workspace.registerTextDocumentContentProvider(EXTENSION_NAME, {
     provideTextDocumentContent: () => "",
   });
 
