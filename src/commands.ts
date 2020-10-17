@@ -24,7 +24,7 @@ export async function registerCommands(context: ExtensionContext) {
       }));
 
       const response = await window.showQuickPick(items, {
-        placeHolder: "Select the deck you'd like to start",
+        placeHolder: "Select the deck you'd like to start...",
       });
 
       if (response) {
@@ -112,6 +112,9 @@ export async function registerCommands(context: ExtensionContext) {
       }
 
       const uri = await window.showSaveDialog({
+        filters: {
+          Decks: ["flash"],
+        },
         saveLabel: "Save Deck",
       });
 
@@ -132,18 +135,61 @@ export async function registerCommands(context: ExtensionContext) {
     })
   );
 
-  commands.registerCommand(
-    `${EXTENSION_NAME}.saveDeckCard`,
-    async (comment: FlashcodeCardComment) => {
-      store.activeDeck!.deck!.cards[
-        store.activeDeck!.card
-      ] = comment.body as string;
+  async function updateActiveDeck(
+    cardContent: string,
+    addCardAndContinue: boolean = false
+  ) {
+    store.activeDeck!.deck!.cards[store.activeDeck!.card] = cardContent;
 
-      const deckContent = new TextEncoder().encode(
-        JSON.stringify(store.activeDeck?.deck, null, 2)
-      );
-
-      await workspace.fs.writeFile(store.activeDeck!.uri!, deckContent);
+    if (addCardAndContinue) {
+      store.activeDeck?.deck.cards.push("\n---\n");
     }
+
+    const deckContent = new TextEncoder().encode(
+      JSON.stringify(store.activeDeck!.deck!, null, 2)
+    );
+    await workspace.fs.writeFile(store.activeDeck!.uri!, deckContent);
+
+    if (addCardAndContinue) {
+      store.activeDeck!.card = store.activeDeck!.deck.cards.length - 1;
+    } else {
+      window.activeTextEditor?.hide();
+    }
+  }
+
+  commands.registerCommand(
+    `${EXTENSION_NAME}.saveDeckAndFinish`,
+    async (comment: FlashcodeCardComment) =>
+      updateActiveDeck(comment.body as string)
   );
+
+  commands.registerCommand(
+    `${EXTENSION_NAME}.saveDeckAndAddCard`,
+    async (comment: FlashcodeCardComment) =>
+      updateActiveDeck(comment.body as string, true)
+  );
+
+  commands.registerCommand(`${EXTENSION_NAME}.addDeckCard`, async () => {
+    const items: FlashcodedDeckItem[] = store.decks.map((deck) => ({
+      deck,
+      label: deck.deck.title,
+    }));
+
+    const response = await window.showQuickPick(items, {
+      placeHolder: "Select the deck you'd like to add a card to...",
+    });
+
+    if (!response) {
+      return;
+    }
+
+    const {
+      deck: { deck, uri },
+    } = response;
+    deck.cards.push("\n---\n");
+    const deckContent = new TextEncoder().encode(JSON.stringify(deck, null, 2));
+    await workspace.fs.writeFile(uri, deckContent);
+
+    startDeck(uri, deck, true, deck.cards.length - 1);
+  });
 }

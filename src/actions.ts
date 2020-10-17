@@ -20,14 +20,15 @@ export function nextCard() {
 export function startDeck(
   uri: Uri | null,
   deck: Deck,
-  editMode: boolean = false
+  editMode: boolean = false,
+  card?: number
 ) {
   store.activeDeck = {
     uri,
     showAnswer: false,
     seenCards: [],
     deck,
-    card: editMode ? 0 : randomNumber(deck.cards.length - 1),
+    card: card || (editMode ? 0 : randomNumber(deck.cards.length - 1)),
     editMode,
   };
 }

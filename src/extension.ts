@@ -4,12 +4,11 @@ import { registerPlayer } from "./comments";
 import { store, WorkspaceDeck } from "./store";
 
 export const EXTENSION_NAME = "flashcode";
-export async function activate(context: vscode.ExtensionContext) {
-  registerCommands(context);
-  registerPlayer();
 
+async function findDecks() {
   const files = await vscode.workspace.findFiles("**/**.flash");
-  if (files.length > 0) {
+  const hasDecks = files.length > 0;
+  if (hasDecks) {
     store.decks = (
       await Promise.all(
         files.map(async (uri) => {
@@ -19,11 +18,23 @@ export async function activate(context: vscode.ExtensionContext) {
         })
       )
     ).sort((a, b) => a.deck.title.localeCompare(b.deck.title));
-
-    vscode.commands.executeCommand(
-      "setContext",
-      `${EXTENSION_NAME}:hasDecks`,
-      true
-    );
   }
+
+  vscode.commands.executeCommand(
+    "setContext",
+    `${EXTENSION_NAME}:hasDecks`,
+    hasDecks
+  );
+}
+
+export async function activate(context: vscode.ExtensionContext) {
+  registerCommands(context);
+  registerPlayer();
+
+  await findDecks();
+
+  const watcher = vscode.workspace.createFileSystemWatcher("**/**.flash");
+  watcher.onDidChange(findDecks);
+  watcher.onDidCreate(findDecks);
+  watcher.onDidDelete(findDecks);
 }

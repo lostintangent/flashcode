@@ -22,23 +22,33 @@
   "contributes": {
     "commands": [
       {
+        "command": "flashcode.addDeckCard",
+        "title": "Add Card(s) to Deck...",
+        "category": "FlashCode"
+      },
+      {
         "command": "flashcode.newDeck",
-        "title": "New Deck",
+        "title": "Create New Deck",
         "category": "FlashCode"
       },
       {
         "command": "flashcode.openDeckFile",
-        "title": "Open Deck File",
+        "title": "Open Deck File...",
         "category": "FlashCode"
       },
       {
         "command": "flashcode.openDeckUrl",
-        "title": "Open Deck URL",
+        "title": "Open Deck URL...",
         "category": "FlashCode"
       },
       {
-        "command": "flashcode.saveDeckCard",
-        "title": "Save Card",
+        "command": "flashcode.saveDeckAndAddCard",
+        "title": "Save and add new card",
+        "enablement": "!commentIsEmpty"
+      },
+      {
+        "command": "flashcode.saveDeckAndFinish",
+        "title": "Save and close deck",
         "enablement": "!commentIsEmpty"
       },
       {
@@ -50,7 +60,15 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "flashcode.saveDeckCard",
+          "command": "flashcode.addDeckCard",
+          "when": "flashcode:hasDecks"
+        },
+        {
+          "command": "flashcode.saveDeckAndAddCard",
+          "when": "false"
+        },
+        {
+          "command": "flashcode.saveDeckAndFinish",
           "when": "false"
         },
         {
@@ -60,8 +78,13 @@
       ],
       "comments/comment/context": [
         {
-          "command": "flashcode.saveDeckCard",
+          "command": "flashcode.saveDeckAndAddCard",
           "group": "inline@1",
+          "when": "commentController == flashcode"
+        },
+        {
+          "command": "flashcode.saveDeckAndFinish",
+          "group": "inline@2",
           "when": "commentController == flashcode"
         }
       ]
