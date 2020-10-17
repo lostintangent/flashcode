@@ -21,8 +21,8 @@ export function registerTextDocumentContentProvider() {}
 const ICON_URL =
   "https://user-images.githubusercontent.com/116461/96352964-b72b7600-107c-11eb-9e8a-a2afc72e936f.png";
 
-class FlashcodeCardComment implements Comment {
-  body: MarkdownString;
+export class FlashcodeCardComment implements Comment {
+  body: MarkdownString | string;
   mode: CommentMode;
   author: CommentAuthorInformation;
   contextValue?: string | undefined;
@@ -33,11 +33,12 @@ class FlashcodeCardComment implements Comment {
     deckTitle: string,
     cardNumber: number,
     totalCards: number,
-    card: MarkdownString
+    card: MarkdownString,
+    editMode: boolean
   ) {
     this.label = `${deckTitle} (${cardNumber} of ${totalCards})`;
     this.body = card;
-    this.mode = CommentMode.Preview;
+    this.mode = editMode ? CommentMode.Editing : CommentMode.Preview;
     this.author = {
       name: "Flashcode",
       iconPath: Uri.parse(ICON_URL),
@@ -55,35 +56,59 @@ function showCard(card: number) {
   const cardUri = Uri.parse(`${EXTENSION_NAME}:/${deckTitle}`);
   provider = comments.createCommentController(EXTENSION_NAME, "Flashcode");
 
-  const cardContent = store.activeDeck!.deck.cards[card];
-  const [cardQuestion, cardAnswer] = cardContent.split("---");
-
   const isFinalCard =
     store.activeDeck!.seenCards.length ===
     store.activeDeck!.deck.cards.length - 1;
 
-  const cardBody = new MarkdownString(
-    store.activeDeck?.showAnswer
-      ? "❓ **Question:** " +
-        cardQuestion +
-        "\n" +
-        "💡 **Answer:** " +
-        cardAnswer +
-        "\n---\n" +
-        (isFinalCard
-          ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck)`
-          : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard)`)
-      : `❓ **Question:** ${cardQuestion}
+  const cardContent = store.activeDeck!.deck.cards[card];
+
+  let cardBody: MarkdownString;
+  if (store.activeDeck?.editMode) {
+    cardBody = new MarkdownString(cardContent);
+  } else {
+    if (cardContent.includes("{{")) {
+      const replaceValue = store.activeDeck?.showAnswer ? "**$1**" : "**...**";
+      const replacedCard = cardContent.replace(/{{([^}]+)}}/gm, replaceValue);
+
+      const icon = store.activeDeck?.showAnswer ? "💡" : "❓";
+      const header = `${icon} ${replacedCard}`;
+      const footer = store.activeDeck?.showAnswer
+        ? isFinalCard
+          ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+          : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`
+        : `⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`;
+
+      cardBody = new MarkdownString(`${header}
 ---
-⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer)`
-  );
-  cardBody.isTrusted = true;
+${footer}`);
+    } else {
+      const [cardQuestion, cardAnswer] = cardContent.split("---");
+      cardBody = new MarkdownString(
+        store.activeDeck?.showAnswer
+          ? "❓ **Question:** " +
+            cardQuestion +
+            "\n" +
+            "💡 **Answer:** " +
+            cardAnswer +
+            "\n---\n" +
+            (isFinalCard
+              ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+              : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
+          : `❓ **Question:** ${cardQuestion}
+---
+⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`
+      );
+    }
+
+    cardBody.isTrusted = true;
+  }
 
   const comment = new FlashcodeCardComment(
     deckTitle,
     card + 1,
     store.activeDeck!.deck.cards.length,
-    cardBody
+    cardBody,
+    store.activeDeck!.editMode
   );
   const thread = provider.createCommentThread(cardUri, new Range(0, 0, 0, 0), [
     comment,

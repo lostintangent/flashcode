@@ -1,7 +1,8 @@
+import { Uri } from "vscode";
 import { Deck, store } from "./store";
 
 function randomNumber(upperBound: number) {
-  return Math.floor(Math.random() * (upperBound + 1))
+  return Math.floor(Math.random() * (upperBound + 1));
 }
 
 export function nextCard() {
@@ -16,11 +17,17 @@ export function nextCard() {
   store.activeDeck!.card = newCard;
 }
 
-export function startDeck(deck: Deck) {
+export function startDeck(
+  uri: Uri | null,
+  deck: Deck,
+  editMode: boolean = false
+) {
   store.activeDeck = {
+    uri,
     showAnswer: false,
     seenCards: [],
     deck,
-    card: randomNumber(deck.cards.length - 1),
+    card: editMode ? 0 : randomNumber(deck.cards.length - 1),
+    editMode,
   };
 }

@@ -1,6 +1,6 @@
 {
   "name": "flashcode",
-  "displayName": "Flashcode",
+  "displayName": "FlashCode",
   "publisher": "codespaces-contrib",
   "icon": "icon.png",
   "repository": {
@@ -22,14 +22,24 @@
   "contributes": {
     "commands": [
       {
+        "command": "flashcode.newDeck",
+        "title": "New Deck",
+        "category": "FlashCode"
+      },
+      {
         "command": "flashcode.openDeckFile",
         "title": "Open Deck File",
-        "category": "Flashcode"
+        "category": "FlashCode"
       },
       {
         "command": "flashcode.openDeckUrl",
         "title": "Open Deck URL",
-        "category": "Flashcode"
+        "category": "FlashCode"
+      },
+      {
+        "command": "flashcode.saveDeckCard",
+        "title": "Save Card",
+        "enablement": "!commentIsEmpty"
       },
       {
         "command": "flashcode.startDeck",
@@ -40,8 +50,19 @@
     "menus": {
       "commandPalette": [
         {
+          "command": "flashcode.saveDeckCard",
+          "when": "false"
+        },
+        {
           "command": "flashcode.startDeck",
           "when": "flashcode:hasDecks"
+        }
+      ],
+      "comments/comment/context": [
+        {
+          "command": "flashcode.saveDeckCard",
+          "group": "inline@1",
+          "when": "commentController == flashcode"
         }
       ]
     },
