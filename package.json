@@ -27,6 +27,11 @@
         "category": "FlashCode"
       },
       {
+        "command": "flashcode.deleteDeck",
+        "title": "Delete Deck",
+        "category": "FlashCode"
+      },
+      {
         "command": "flashcode.newDeck",
         "title": "Create New Deck",
         "category": "FlashCode"
@@ -54,13 +59,17 @@
       {
         "command": "flashcode.startDeck",
         "title": "Start Deck",
-        "category": "Flashcode"
+        "category": "FlashCode"
       }
     ],
     "menus": {
       "commandPalette": [
         {
           "command": "flashcode.addDeckCard",
+          "when": "flashcode:hasDecks"
+        },
+        {
+          "command": "flashcode.deleteDeck",
           "when": "flashcode:hasDecks"
         },
         {
@@ -93,8 +102,16 @@
       {
         "id": "json",
         "extensions": [
-          ".flash"
+          ".deck"
         ]
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "flashcode.nextAnswer",
+        "when": "resourceScheme == flashcode && !textInputFocus && !terminalFocus",
+        "key": "ctrl+right",
+        "mac": "cmd+right"
       }
     ]
   },

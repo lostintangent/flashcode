@@ -3,6 +3,7 @@ import {
   env,
   ExtensionContext,
   QuickPickItem,
+  Uri,
   window,
   workspace,
 } from "vscode";
@@ -14,6 +15,8 @@ import { store, WorkspaceDeck } from "./store";
 interface FlashcodedDeckItem extends QuickPickItem {
   deck: WorkspaceDeck;
 }
+
+const NEW_CARD_TEMPLATE = "<question>\n---\n<answer>";
 
 export async function registerCommands(context: ExtensionContext) {
   context.subscriptions.push(
@@ -111,9 +114,14 @@ export async function registerCommands(context: ExtensionContext) {
         return;
       }
 
+      const defaultUri = Uri.joinPath(
+        workspace.workspaceFolders![0].uri,
+        `${title.toLowerCase().replace(/\s+/g, "-")}.flash`
+      );
       const uri = await window.showSaveDialog({
+        defaultUri,
         filters: {
-          Decks: ["flash"],
+          Decks: ["deck"],
         },
         saveLabel: "Save Deck",
       });
@@ -124,7 +132,7 @@ export async function registerCommands(context: ExtensionContext) {
 
       const deck = {
         title,
-        cards: ["\n---\n"],
+        cards: [NEW_CARD_TEMPLATE],
       };
 
       const deckContent = new TextEncoder().encode(
@@ -142,7 +150,7 @@ export async function registerCommands(context: ExtensionContext) {
     store.activeDeck!.deck!.cards[store.activeDeck!.card] = cardContent;
 
     if (addCardAndContinue) {
-      store.activeDeck?.deck.cards.push("\n---\n");
+      store.activeDeck?.deck.cards.push(NEW_CARD_TEMPLATE);
     }
 
     const deckContent = new TextEncoder().encode(
@@ -186,10 +194,43 @@ export async function registerCommands(context: ExtensionContext) {
     const {
       deck: { deck, uri },
     } = response;
-    deck.cards.push("\n---\n");
+    deck.cards.push(NEW_CARD_TEMPLATE);
     const deckContent = new TextEncoder().encode(JSON.stringify(deck, null, 2));
     await workspace.fs.writeFile(uri, deckContent);
 
     startDeck(uri, deck, true, deck.cards.length - 1);
+  });
+
+  commands.registerCommand(`${EXTENSION_NAME}.nextAnswer`, async () => {
+    if (store.activeDeck!.showAnswer) {
+      const isFinalCard =
+        store.activeDeck!.seenCards.length ===
+        store.activeDeck!.deck.cards.length - 1;
+
+      if (isFinalCard) {
+        commands.executeCommand(`${EXTENSION_NAME}.endDeck`);
+      } else {
+        commands.executeCommand(`${EXTENSION_NAME}.nextCard`);
+      }
+    } else {
+      commands.executeCommand(`${EXTENSION_NAME}.showAnswer`);
+    }
+  });
+
+  commands.registerCommand(`${EXTENSION_NAME}.deleteDeck`, async () => {
+    const items: FlashcodedDeckItem[] = store.decks.map((deck) => ({
+      deck,
+      label: deck.deck.title,
+    }));
+
+    const response = await window.showQuickPick(items, {
+      placeHolder: "Select the deck you'd like to delete...",
+    });
+
+    if (!response) {
+      return;
+    }
+
+    await workspace.fs.delete(response.deck.uri);
   });
 }
