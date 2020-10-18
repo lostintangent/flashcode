@@ -1,5 +1,6 @@
 import { reaction } from "mobx";
 import {
+  commands,
   Comment,
   CommentAuthorInformation,
   CommentController,
@@ -32,11 +33,12 @@ export class FlashCodeCardComment implements Comment {
   constructor(
     deckTitle: string,
     cardNumber: number,
+    seenCards: number,
     totalCards: number,
     card: MarkdownString,
     editMode: boolean
   ) {
-    this.label = `${deckTitle} (${cardNumber} of ${totalCards})`;
+    this.label = `${deckTitle} (${seenCards} of ${totalCards})`;
     this.body = card;
     this.mode = editMode ? CommentMode.Editing : CommentMode.Preview;
     this.author = {
@@ -109,6 +111,7 @@ ${footer}`,
   const comment = new FlashCodeCardComment(
     deckTitle,
     card + 1,
+    store.activeDeck!.seenCards.length + 1,
     store.activeDeck!.deck.cards.length,
     cardBody,
     store.activeDeck!.editMode
@@ -130,12 +133,20 @@ export function registerPlayer() {
   });
 
   reaction(
+    () => (store.activeDeck ? store.activeDeck.editMode : false),
+    (editMode) => {
+      commands.executeCommand("setContext", "flashcode:isEditing", editMode);
+    }
+  );
+
+  reaction(
     () =>
       store.activeDeck
         ? [
             store.activeDeck.deck.title,
             store.activeDeck.card,
             store.activeDeck.showAnswer,
+            store.activeDeck.editMode,
           ]
         : null,
     () => {

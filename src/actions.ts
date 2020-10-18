@@ -36,22 +36,31 @@ export function startDeck(
 
 export async function updateActiveDeck(
   cardContent: string,
-  addCardAndContinue: boolean = false
+  addCard: boolean = false,
+  continueDeck: boolean = false,
+  closeDeck: boolean = false
 ) {
   store.activeDeck!.deck!.cards[store.activeDeck!.card] = cardContent;
-  if (addCardAndContinue) {
+
+  if (addCard) {
     const newCard = store.activeDeck!.deck.cardTemplate || NEW_CARD_TEMPLATE;
     store.activeDeck?.deck.cards.push(newCard);
-  }
-
-  if (addCardAndContinue) {
-    store.activeDeck!.card = store.activeDeck!.deck.cards.length - 1;
   } else {
-    window.activeTextEditor?.hide();
+    store.activeDeck!.editMode = false;
   }
 
   const deckContent = new TextEncoder().encode(
     JSON.stringify(store.activeDeck!.deck!, null, 2)
   );
-  await workspace.fs.writeFile(store.activeDeck!.uri!, deckContent);
+  workspace.fs.writeFile(store.activeDeck!.uri!, deckContent);
+
+  if (continueDeck) {
+    if (addCard) {
+      store.activeDeck!.card = store.activeDeck!.deck.cards.length - 1;
+    } else {
+      nextCard();
+    }
+  } else if (closeDeck) {
+    window.activeTextEditor?.hide();
+  }
 }

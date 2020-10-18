@@ -5,11 +5,8 @@ import { store, WorkspaceDeck } from "./store";
 const DECK_GLOB = `**/*.deck`;
 
 async function discoverDecks() {
-  console.log("FlashCode: Discovering decks ", DECK_GLOB);
   const files = await vscode.workspace.findFiles(DECK_GLOB);
   const hasDecks = files.length > 0;
-
-  console.log("FlashCode: Found decks ", files);
 
   if (hasDecks) {
     store.decks = (

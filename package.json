@@ -27,6 +27,15 @@
         "category": "FlashCode"
       },
       {
+        "command": "flashcode.cancelEdit",
+        "title": "Cancel"
+      },
+      {
+        "command": "flashcode.editCard",
+        "title": "Edit Card",
+        "icon": "$(edit)"
+      },
+      {
         "command": "flashcode.deleteDeck",
         "title": "Delete Deck",
         "category": "FlashCode"
@@ -47,8 +56,18 @@
         "category": "FlashCode"
       },
       {
+        "command": "flashcode.saveDeck",
+        "title": "Save",
+        "enablement": "!commentIsEmpty"
+      },
+      {
         "command": "flashcode.saveDeckAndAddCard",
         "title": "Save and add new card",
+        "enablement": "!commentIsEmpty"
+      },
+      {
+        "command": "flashcode.saveDeckAndContinue",
+        "title": "Save and continue",
         "enablement": "!commentIsEmpty"
       },
       {
@@ -69,11 +88,27 @@
           "when": "flashcode:hasDecks"
         },
         {
+          "command": "flashcode.cancelEdit",
+          "when": "false"
+        },
+        {
+          "command": "flashcode.editCard",
+          "when": "false"
+        },
+        {
           "command": "flashcode.deleteDeck",
           "when": "flashcode:hasDecks"
         },
         {
+          "command": "flashcode.saveDeck",
+          "when": "false"
+        },
+        {
           "command": "flashcode.saveDeckAndAddCard",
+          "when": "false"
+        },
+        {
+          "command": "flashcode.saveDeckAndContinue",
           "when": "false"
         },
         {
@@ -87,14 +122,36 @@
       ],
       "comments/comment/context": [
         {
+          "command": "flashcode.cancelEdit",
+          "group": "inline@1",
+          "when": "commentController == flashcode && flashcode:mode == start"
+        },
+        {
+          "command": "flashcode.saveDeck",
+          "group": "inline@2",
+          "when": "commentController == flashcode && flashcode:mode == start"
+        },
+        {
+          "command": "flashcode.saveDeckAndContinue",
+          "group": "inline@3",
+          "when": "commentController == flashcode && flashcode:mode == start"
+        },
+        {
           "command": "flashcode.saveDeckAndAddCard",
           "group": "inline@1",
-          "when": "commentController == flashcode"
+          "when": "commentController == flashcode && flashcode:mode == add"
         },
         {
           "command": "flashcode.saveDeckAndFinish",
           "group": "inline@2",
-          "when": "commentController == flashcode"
+          "when": "commentController == flashcode && flashcode:mode == add"
+        }
+      ],
+      "comments/commentThread/title": [
+        {
+          "command": "flashcode.editCard",
+          "group": "inline@1",
+          "when": "commentController == flashcode && !flashcode:isEditing"
         }
       ]
     },

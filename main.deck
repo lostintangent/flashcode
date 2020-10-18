@@ -3,8 +3,8 @@
   "cards": [
     "What's the answer\n---\nThis",
     "What's the second answer\n---\nThis #2",
-    "Flashcode is super {{cool}}!",
-    "What's the fourth answer\n---\nThis #4",
+    "Flashcode is super {{cool}}!!",
+    "What's the fourth answer\n---\nThis #4!",
     "JavaScript is a {{protoype}} based inheritance language."
   ]
 }

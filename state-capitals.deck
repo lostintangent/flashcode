@@ -1,0 +1,9 @@
+{
+  "title": "State Capitals (USA)",
+  "cards": [
+    "What is the capital of Washington state?\n\n![Flag](https://images-na.ssl-images-amazon.com/images/I/51s6yvNChWL._AC_.jpg)\n---\nOlympia",
+    "What is the capital of Florida?\n---\nTallahassee",
+    "What is the capital of California?\n---\nSacramento"
+  ],
+  "cardTemplate": "What is the capital of <state>?\n---\n<capital>"
+}

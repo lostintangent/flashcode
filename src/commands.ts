@@ -31,15 +31,16 @@ export async function registerCommands(context: ExtensionContext) {
       });
 
       if (response) {
+        commands.executeCommand("setContext", "flashcode:mode", "start");
         startDeck(response.deck.uri, response.deck.deck);
       }
     })
   );
 
   context.subscriptions.push(
-    commands.registerCommand(`${EXTENSION_NAME}.endDeck`, async () => {
-      window.activeTextEditor?.hide();
-    })
+    commands.registerCommand(`${EXTENSION_NAME}.endDeck`, () =>
+      window.activeTextEditor?.hide()
+    )
   );
 
   context.subscriptions.push(
@@ -73,6 +74,7 @@ export async function registerCommands(context: ExtensionContext) {
         const contents = new TextDecoder().decode(bytes);
         const deck = JSON.parse(contents);
 
+        commands.executeCommand("setContext", "flashcode:mode", "start");
         startDeck(uri[0], deck);
       } catch {
         window.showErrorMessage(
@@ -96,6 +98,7 @@ export async function registerCommands(context: ExtensionContext) {
       try {
         const axios = require("axios").default;
         const { data } = await axios.get(url);
+        commands.executeCommand("setContext", "flashcode:mode", "start");
         startDeck(null, data);
       } catch {
         window.showErrorMessage(
@@ -140,6 +143,8 @@ export async function registerCommands(context: ExtensionContext) {
         JSON.stringify(deck, null, 2)
       );
       await workspace.fs.writeFile(uri, deckContent);
+
+      commands.executeCommand("setContext", "flashcode:mode", "add");
       startDeck(uri, deck, true);
     })
   );
@@ -147,13 +152,13 @@ export async function registerCommands(context: ExtensionContext) {
   commands.registerCommand(
     `${EXTENSION_NAME}.saveDeckAndFinish`,
     async (comment: FlashCodeCardComment) =>
-      updateActiveDeck(comment.body as string)
+      updateActiveDeck(comment.body as string, false, false, true)
   );
 
   commands.registerCommand(
     `${EXTENSION_NAME}.saveDeckAndAddCard`,
     async (comment: FlashCodeCardComment) =>
-      updateActiveDeck(comment.body as string, true)
+      updateActiveDeck(comment.body as string, true, true)
   );
 
   commands.registerCommand(`${EXTENSION_NAME}.addDeckCard`, async () => {
@@ -179,6 +184,7 @@ export async function registerCommands(context: ExtensionContext) {
     const deckContent = new TextEncoder().encode(JSON.stringify(deck, null, 2));
     await workspace.fs.writeFile(uri, deckContent);
 
+    commands.executeCommand("setContext", "flashcode:mode", "add");
     startDeck(uri, deck, true, deck.cards.length - 1);
   });
 
@@ -214,4 +220,32 @@ export async function registerCommands(context: ExtensionContext) {
 
     await workspace.fs.delete(response.deck.uri);
   });
+
+  commands.registerCommand(
+    `${EXTENSION_NAME}.editCard`,
+    async (comment: FlashCodeCardComment) => {
+      store.activeDeck!.editMode = true;
+    }
+  );
+
+  commands.registerCommand(
+    `${EXTENSION_NAME}.saveDeckAndContinue`,
+    async (comment: FlashCodeCardComment) => {
+      updateActiveDeck(comment.body as string, false, true);
+    }
+  );
+
+  commands.registerCommand(
+    `${EXTENSION_NAME}.saveDeck`,
+    async (comment: FlashCodeCardComment) => {
+      updateActiveDeck(comment.body as string, false, false);
+    }
+  );
+
+  commands.registerCommand(
+    `${EXTENSION_NAME}.cancelEdit`,
+    async (comment: FlashCodeCardComment) => {
+      store.activeDeck!.editMode = false;
+    }
+  );
 }
