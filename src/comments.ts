@@ -21,7 +21,7 @@ export function registerTextDocumentContentProvider() {}
 const ICON_URL =
   "https://user-images.githubusercontent.com/116461/96352964-b72b7600-107c-11eb-9e8a-a2afc72e936f.png";
 
-export class FlashcodeCardComment implements Comment {
+export class FlashCodeCardComment implements Comment {
   body: MarkdownString | string;
   mode: CommentMode;
   author: CommentAuthorInformation;
@@ -40,7 +40,7 @@ export class FlashcodeCardComment implements Comment {
     this.body = card;
     this.mode = editMode ? CommentMode.Editing : CommentMode.Preview;
     this.author = {
-      name: "Flashcode",
+      name: "FlashCode",
       iconPath: Uri.parse(ICON_URL),
     };
   }
@@ -54,7 +54,7 @@ function showCard(card: number) {
 
   const deckTitle = store.activeDeck!.deck.title;
   const cardUri = Uri.parse(`${EXTENSION_NAME}:/${deckTitle}`);
-  provider = comments.createCommentController(EXTENSION_NAME, "Flashcode");
+  provider = comments.createCommentController(EXTENSION_NAME, "FlashCode");
 
   const isFinalCard =
     store.activeDeck!.seenCards.length ===
@@ -67,34 +67,37 @@ function showCard(card: number) {
     cardBody = new MarkdownString(cardContent);
   } else {
     if (cardContent.includes("{{")) {
-      const replaceValue = store.activeDeck?.showAnswer ? "**$1**" : "**...**";
+      const replaceValue = store.activeDeck?.showAnswer
+        ? "**[$1]**"
+        : "**[...]**";
       const replacedCard = cardContent.replace(/{{([^}]+)}}/gm, replaceValue);
-
-      const icon = store.activeDeck?.showAnswer ? "💡" : "❓";
-      const header = `${icon} ${replacedCard}`;
       const footer = store.activeDeck?.showAnswer
         ? isFinalCard
-          ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+          ? `👍 [Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
           : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`
         : `⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`;
 
-      cardBody = new MarkdownString(`${header}
----
-${footer}`);
+      cardBody = new MarkdownString(
+        `
+${replacedCard}
+\n---\n
+${footer}`,
+        true
+      );
     } else {
       const [cardQuestion, cardAnswer] = cardContent.split("---");
       cardBody = new MarkdownString(
         store.activeDeck?.showAnswer
-          ? "❓ **Question:** " +
+          ? "**Question:** " +
             cardQuestion +
             "\n" +
-            "💡 **Answer:** " +
+            "**Answer:** " +
             cardAnswer +
             "\n---\n" +
             (isFinalCard
               ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
               : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
-          : `❓ **Question:** ${cardQuestion}
+          : `**Question:** ${cardQuestion}
 ---
 ⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`
       );
@@ -103,7 +106,7 @@ ${footer}`);
     cardBody.isTrusted = true;
   }
 
-  const comment = new FlashcodeCardComment(
+  const comment = new FlashCodeCardComment(
     deckTitle,
     card + 1,
     store.activeDeck!.deck.cards.length,

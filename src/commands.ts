@@ -7,16 +7,16 @@ import {
   window,
   workspace,
 } from "vscode";
-import { nextCard, startDeck } from "./actions";
-import { FlashcodeCardComment } from "./comments";
-import { EXTENSION_NAME } from "./extension";
+import { nextCard, startDeck, updateActiveDeck } from "./actions";
+import { FlashCodeCardComment } from "./comments";
+import { DECK_EXTENSION, EXTENSION_NAME } from "./extension";
 import { store, WorkspaceDeck } from "./store";
 
 interface FlashcodedDeckItem extends QuickPickItem {
   deck: WorkspaceDeck;
 }
 
-const NEW_CARD_TEMPLATE = "<question>\n---\n<answer>";
+export const NEW_CARD_TEMPLATE = "<question>\n---\n<answer>";
 
 export async function registerCommands(context: ExtensionContext) {
   context.subscriptions.push(
@@ -56,8 +56,9 @@ export async function registerCommands(context: ExtensionContext) {
     commands.registerCommand(`${EXTENSION_NAME}.openDeckFile`, async () => {
       const uri = await window.showOpenDialog({
         filters: {
-          Tours: ["flash"],
+          Decks: ["deck"],
         },
+        defaultUri: workspace.workspaceFolders![0].uri,
         canSelectFolders: false,
         canSelectMany: false,
         openLabel: "Open Deck",
@@ -116,7 +117,7 @@ export async function registerCommands(context: ExtensionContext) {
 
       const defaultUri = Uri.joinPath(
         workspace.workspaceFolders![0].uri,
-        `${title.toLowerCase().replace(/\s+/g, "-")}.flash`
+        `${title.toLowerCase().replace(/\s+/g, "-")}.${DECK_EXTENSION}`
       );
       const uri = await window.showSaveDialog({
         defaultUri,
@@ -143,37 +144,15 @@ export async function registerCommands(context: ExtensionContext) {
     })
   );
 
-  async function updateActiveDeck(
-    cardContent: string,
-    addCardAndContinue: boolean = false
-  ) {
-    store.activeDeck!.deck!.cards[store.activeDeck!.card] = cardContent;
-
-    if (addCardAndContinue) {
-      store.activeDeck?.deck.cards.push(NEW_CARD_TEMPLATE);
-    }
-
-    const deckContent = new TextEncoder().encode(
-      JSON.stringify(store.activeDeck!.deck!, null, 2)
-    );
-    await workspace.fs.writeFile(store.activeDeck!.uri!, deckContent);
-
-    if (addCardAndContinue) {
-      store.activeDeck!.card = store.activeDeck!.deck.cards.length - 1;
-    } else {
-      window.activeTextEditor?.hide();
-    }
-  }
-
   commands.registerCommand(
     `${EXTENSION_NAME}.saveDeckAndFinish`,
-    async (comment: FlashcodeCardComment) =>
+    async (comment: FlashCodeCardComment) =>
       updateActiveDeck(comment.body as string)
   );
 
   commands.registerCommand(
     `${EXTENSION_NAME}.saveDeckAndAddCard`,
-    async (comment: FlashcodeCardComment) =>
+    async (comment: FlashCodeCardComment) =>
       updateActiveDeck(comment.body as string, true)
   );
 
@@ -194,7 +173,9 @@ export async function registerCommands(context: ExtensionContext) {
     const {
       deck: { deck, uri },
     } = response;
-    deck.cards.push(NEW_CARD_TEMPLATE);
+
+    const newCard = deck.cardTemplate || NEW_CARD_TEMPLATE;
+    deck.cards.push(newCard);
     const deckContent = new TextEncoder().encode(JSON.stringify(deck, null, 2));
     await workspace.fs.writeFile(uri, deckContent);
 

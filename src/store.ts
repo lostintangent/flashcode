@@ -18,6 +18,7 @@ export interface WorkspaceDeck {
 export interface Deck {
   title: string;
   cards: string[];
+  cardTemplate?: string;
 }
 
 export interface Store {

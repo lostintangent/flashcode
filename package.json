@@ -113,6 +113,12 @@
         "key": "ctrl+right",
         "mac": "cmd+right"
       }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "*.deck",
+        "url": "https://cdn.jsdelivr.net/gh/codespaces-contrib/flashcode/schema.json"
+      }
     ]
   },
   "scripts": {
