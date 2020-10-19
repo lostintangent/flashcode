@@ -76,8 +76,8 @@
         "enablement": "!commentIsEmpty"
       },
       {
-        "command": "flashcode.startDeck",
-        "title": "Start Deck",
+        "command": "flashcode.reviewDeck",
+        "title": "Review Deck",
         "category": "FlashCode"
       }
     ],
@@ -116,7 +116,7 @@
           "when": "false"
         },
         {
-          "command": "flashcode.startDeck",
+          "command": "flashcode.reviewDeck",
           "when": "flashcode:hasDecks"
         }
       ],

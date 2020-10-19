@@ -9,7 +9,7 @@ async function discoverDecks() {
   const hasDecks = files.length > 0;
 
   if (hasDecks) {
-    store.decks = (
+    store.workspaceDecks = (
       await Promise.all(
         files.map(async (uri) => {
           const deckContent = await vscode.workspace.fs.readFile(uri);

@@ -20,8 +20,8 @@ export const NEW_CARD_TEMPLATE = "<question>\n---\n<answer>";
 
 export async function registerCommands(context: ExtensionContext) {
   context.subscriptions.push(
-    commands.registerCommand(`${EXTENSION_NAME}.startDeck`, async () => {
-      const items: FlashcodedDeckItem[] = store.decks.map((deck) => ({
+    commands.registerCommand(`${EXTENSION_NAME}.reviewDeck`, async () => {
+      const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
         deck,
         label: deck.deck.title,
       }));
@@ -162,7 +162,7 @@ export async function registerCommands(context: ExtensionContext) {
   );
 
   commands.registerCommand(`${EXTENSION_NAME}.addDeckCard`, async () => {
-    const items: FlashcodedDeckItem[] = store.decks.map((deck) => ({
+    const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
       deck,
       label: deck.deck.title,
     }));
@@ -205,7 +205,7 @@ export async function registerCommands(context: ExtensionContext) {
   });
 
   commands.registerCommand(`${EXTENSION_NAME}.deleteDeck`, async () => {
-    const items: FlashcodedDeckItem[] = store.decks.map((deck) => ({
+    const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
       deck,
       label: deck.deck.title,
     }));

@@ -10,23 +10,23 @@ export interface ActiveDeck {
   editMode: boolean;
 }
 
-export interface WorkspaceDeck {
-  uri: Uri;
-  deck: Deck;
-}
-
 export interface Deck {
   title: string;
   cards: string[];
   cardTemplate?: string;
 }
 
+export interface WorkspaceDeck {
+  uri: Uri;
+  deck: Deck;
+}
+
 export interface Store {
   activeDeck: ActiveDeck | undefined;
-  decks: WorkspaceDeck[];
+  workspaceDecks: WorkspaceDeck[];
 }
 
 export const store: Store = observable({
   activeDeck: undefined,
-  decks: [],
+  workspaceDecks: [],
 });
