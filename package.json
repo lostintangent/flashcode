@@ -7,8 +7,8 @@
     "type": "git",
     "url": "https://github.com/codespaces-contrib/flashcode"
   },
-  "description": "",
-  "version": "0.0.1",
+  "description": "VS Code extension that allows creating and reviewing decks of code-centric flash cards.",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.50.0"
   },

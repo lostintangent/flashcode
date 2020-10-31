@@ -75,9 +75,9 @@ function showCard(card: number) {
       const replacedCard = cardContent.replace(/{{([^}]+)}}/gm, replaceValue);
       const footer = store.activeDeck?.showAnswer
         ? isFinalCard
-          ? `👍 [Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
-          : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`
-        : `⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`;
+          ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+          : `[Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`
+        : `[Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`;
 
       cardBody = new MarkdownString(
         `
@@ -97,8 +97,8 @@ ${footer}`,
             cardAnswer +
             "\n---\n" +
             (isFinalCard
-              ? `👍 [Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
-              : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
+              ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+              : `[Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
           : `**Question:** ${cardQuestion}
 ---
 ⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`
@@ -107,8 +107,8 @@ ${footer}`,
       cardBody = new MarkdownString(
         `**Fact:** ${cardContent}\n\n---\n` +
           (isFinalCard
-            ? `👍 [Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
-            : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
+            ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+            : `[Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
       );
     }
 
