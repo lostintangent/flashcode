@@ -101,7 +101,7 @@ ${footer}`,
               : `[Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
           : `**Question:** ${cardQuestion}
 ---
-⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`
+[Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`
       );
     } else {
       cardBody = new MarkdownString(
