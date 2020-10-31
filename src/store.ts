@@ -10,9 +10,16 @@ export interface ActiveDeck {
   editMode: boolean;
 }
 
+export interface DeckCard {
+  body: string;
+  dateAdded: string;
+  tags?: string[];
+}
+
 export interface Deck {
   title: string;
-  cards: string[];
+  dateAdded: string;
+  cards: DeckCard[];
   cardTemplate?: string;
 }
 

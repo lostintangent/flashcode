@@ -174,7 +174,7 @@
     "jsonValidation": [
       {
         "fileMatch": "*.deck",
-        "url": "https://cdn.jsdelivr.net/gh/codespaces-contrib/flashcode/schema.json"
+        "url": "https://cdn.jsdelivr.net/gh/codespaces-contrib/flashcode@main/schema.json"
       }
     ]
   },

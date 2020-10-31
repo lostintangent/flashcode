@@ -40,10 +40,14 @@ export async function updateActiveDeck(
   continueDeck: boolean = false,
   closeDeck: boolean = false
 ) {
-  store.activeDeck!.deck!.cards[store.activeDeck!.card] = cardContent;
+  store.activeDeck!.deck!.cards[store.activeDeck!.card].body = cardContent;
 
   if (addCard) {
-    const newCard = store.activeDeck!.deck.cardTemplate || NEW_CARD_TEMPLATE;
+    const newCard = {
+      body: store.activeDeck!.deck.cardTemplate || NEW_CARD_TEMPLATE,
+      dateAdded: new Date().toJSON(),
+    };
+
     store.activeDeck?.deck.cards.push(newCard);
   } else {
     store.activeDeck!.editMode = false;

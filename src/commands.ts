@@ -12,27 +12,35 @@ import { FlashCodeCardComment } from "./comments";
 import { DECK_EXTENSION, EXTENSION_NAME } from "./extension";
 import { store, WorkspaceDeck } from "./store";
 
+export const NEW_CARD_TEMPLATE = "<question>\n---\n<answer>";
+
 interface FlashcodedDeckItem extends QuickPickItem {
   deck: WorkspaceDeck;
 }
 
-export const NEW_CARD_TEMPLATE = "<question>\n---\n<answer>";
+async function selectDeck(action: string) {
+  const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
+    deck,
+    label: deck.deck.title,
+    description: `${deck.deck.cards.length} cards`,
+  }));
+
+  const response = await window.showQuickPick(items, {
+    placeHolder: `Select the deck you'd like to ${action}...`,
+  });
+
+  if (response) {
+    return response.deck;
+  }
+}
 
 export async function registerCommands(context: ExtensionContext) {
   context.subscriptions.push(
     commands.registerCommand(`${EXTENSION_NAME}.reviewDeck`, async () => {
-      const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
-        deck,
-        label: deck.deck.title,
-      }));
-
-      const response = await window.showQuickPick(items, {
-        placeHolder: "Select the deck you'd like to start...",
-      });
-
-      if (response) {
+      const selection = await selectDeck("review");
+      if (selection) {
         commands.executeCommand("setContext", "flashcode:mode", "start");
-        startDeck(response.deck.uri, response.deck.deck);
+        startDeck(selection.uri, selection.deck);
       }
     })
   );
@@ -134,9 +142,17 @@ export async function registerCommands(context: ExtensionContext) {
         return;
       }
 
+      const dateAdded = new Date().toJSON();
+
       const deck = {
         title,
-        cards: [NEW_CARD_TEMPLATE],
+        dateAdded,
+        cards: [
+          {
+            body: NEW_CARD_TEMPLATE,
+            dateAdded,
+          },
+        ],
       };
 
       const deckContent = new TextEncoder().encode(
@@ -162,24 +178,18 @@ export async function registerCommands(context: ExtensionContext) {
   );
 
   commands.registerCommand(`${EXTENSION_NAME}.addDeckCard`, async () => {
-    const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
-      deck,
-      label: deck.deck.title,
-    }));
-
-    const response = await window.showQuickPick(items, {
-      placeHolder: "Select the deck you'd like to add a card to...",
-    });
-
-    if (!response) {
+    const selection = await selectDeck("add cards to");
+    if (!selection) {
       return;
     }
 
-    const {
-      deck: { deck, uri },
-    } = response;
+    const { deck, uri } = selection;
 
-    const newCard = deck.cardTemplate || NEW_CARD_TEMPLATE;
+    const newCard = {
+      body: deck.cardTemplate || NEW_CARD_TEMPLATE,
+      dateAdded: new Date().toJSON(),
+    };
+
     deck.cards.push(newCard);
     const deckContent = new TextEncoder().encode(JSON.stringify(deck, null, 2));
     await workspace.fs.writeFile(uri, deckContent);
@@ -205,20 +215,11 @@ export async function registerCommands(context: ExtensionContext) {
   });
 
   commands.registerCommand(`${EXTENSION_NAME}.deleteDeck`, async () => {
-    const items: FlashcodedDeckItem[] = store.workspaceDecks.map((deck) => ({
-      deck,
-      label: deck.deck.title,
-    }));
+    const selection = await selectDeck("delete");
 
-    const response = await window.showQuickPick(items, {
-      placeHolder: "Select the deck you'd like to delete...",
-    });
-
-    if (!response) {
-      return;
+    if (selection) {
+      await workspace.fs.delete(selection.uri);
     }
-
-    await workspace.fs.delete(response.deck.uri);
   });
 
   commands.registerCommand(

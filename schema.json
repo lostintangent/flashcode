@@ -2,18 +2,33 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "title": "Schema for FlashCode deck files",
   "type": "object",
-  "required": ["title", "cards"],
+  "required": ["title", "dateAdded", "cards"],
   "properties": {
     "title": {
       "type": "string",
       "description": "Specifies the title of the deck."
+    },
+    "dateAdded": {
+      "type": "string",
+      "description": "Specifies the date/time that this deck was originally created."
     },
     "cards": {
       "type": "array",
       "description": "Specifies the list of cards that are included in the deck.",
       "default": [],
       "items": {
-        "type": "string"
+        "type": "object",
+        "required": ["body", "dateAdded"],
+        "properties": {
+          "body": {
+            "type": "string",
+            "description": "Specifies the body of the card."
+          },
+          "dateAdded": {
+            "type": "string",
+            "description": "Specifies the date/time that this card was originally created."
+          }
+        }
       }
     },
     "cardTemplate": {

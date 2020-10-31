@@ -62,7 +62,7 @@ function showCard(card: number) {
     store.activeDeck!.seenCards.length ===
     store.activeDeck!.deck.cards.length - 1;
 
-  const cardContent = store.activeDeck!.deck.cards[card];
+  const cardContent = store.activeDeck!.deck.cards[card].body;
 
   let cardBody: MarkdownString;
   if (store.activeDeck?.editMode) {
@@ -86,7 +86,7 @@ ${replacedCard}
 ${footer}`,
         true
       );
-    } else {
+    } else if (cardContent.includes("---")) {
       const [cardQuestion, cardAnswer] = cardContent.split("---");
       cardBody = new MarkdownString(
         store.activeDeck?.showAnswer
@@ -97,11 +97,18 @@ ${footer}`,
             cardAnswer +
             "\n---\n" +
             (isFinalCard
-              ? `[Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+              ? `👍 [Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
               : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
           : `**Question:** ${cardQuestion}
 ---
 ⬇️ [Show Answer](command:${EXTENSION_NAME}.showAnswer "Show answer")`
+      );
+    } else {
+      cardBody = new MarkdownString(
+        `**Fact:** ${cardContent}\n\n---\n` +
+          (isFinalCard
+            ? `👍 [Finish Deck](command:${EXTENSION_NAME}.endDeck "End deck")`
+            : `➡ [Next Card](command:${EXTENSION_NAME}.nextCard "Next card")`)
       );
     }
 
