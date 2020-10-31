@@ -17,8 +17,6 @@ import {
 import { EXTENSION_NAME } from "./extension";
 import { store } from "./store";
 
-export function registerTextDocumentContentProvider() {}
-
 const ICON_URL =
   "https://user-images.githubusercontent.com/116461/96352964-b72b7600-107c-11eb-9e8a-a2afc72e936f.png";
 
